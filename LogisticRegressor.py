@@ -18,6 +18,7 @@ class LogisticRegressor():
         self.costs = []
         self.theta = None
 
+
     def _cost_function(self, hyp, y):
         """
         Calculates the cost function (error) for the predicted values (hyp) when compared against the right labels (y).
@@ -29,10 +30,13 @@ class LogisticRegressor():
         This returns an scalar
         """
         m = len(y)
-
-        # if self.regularize:
+        ##cost = 
+        if self.regularize:
         #     Here you would know there is something else to do
-        return 0
+            return 0
+        else:
+            cost = np.sum(-np.log(hyp)@y.T - np.log(1-hyp)@(1-y.T) )
+            return cost
 
     def _cost_function_derivative(self, y_pred, y, X, m):
         """
@@ -47,8 +51,14 @@ class LogisticRegressor():
         Your implementation must support regularization, so you will have two cases here, one for when regularization is requested and another one for when it is not.
 
         """
-        empty_derivatives = np.zeros((X.shape[0], 1))
-        return empty_derivatives
+        ##not regularized
+     
+        derivatives = self.theta
+        for i in range (X.shape[0]):
+            derivatives[i][0] = self.theta[i][0] - self.alpha * 1/m  * np.sum((y_pred-y)@X[i].T)
+        
+        ##regularized
+        return derivatives
 
     def _hypothesis(self, X):
         """
@@ -57,8 +67,10 @@ class LogisticRegressor():
 
         TODO: Implement this function to return a (1 x m) array with the list of predictions for each sample
         """
-        emptyResult = np.zeros((1, X.shape[1]))
-        return emptyResult
+
+        ##using formula 1/(1+e^(-theta T*X))
+        result = 1/ (1 + np.exp(- self.theta.T @ X))
+        return result
 
     def fit(self, X, y):
         """
@@ -77,17 +89,17 @@ class LogisticRegressor():
 
         for i in range(self.epochs):
             # Get predictions
-            # hyp = ...   # hyp is (1xm) vector
+            hyp = self._hypothesis(X)  # hyp is (1xm) vector
 
             # Calculate cost
             # cost = ...      # cost is a scalar
-            cost = 0
+            cost = self._cost_function(hyp, y)
 
             # get gradient, an (nx1) array
-            # gradient = ...
+            gradient = self._cost_function_derivative(hyp, y, X, m)
             
             # delta/update rule
-            # self.theta = ...
+            self.theta = gradient
             self.costs.append(cost)
 
         print("Final theta is {} (cost: {})".format(self.theta.T, cost))
@@ -101,6 +113,6 @@ class LogisticRegressor():
         TODO: Implement this function to predict the class for the dataset X. You must return a (1 x m) array of 0|1. 
         The np.where function could be useful here to transform all outputs larger than 0.5 to 1.
         """
-        empty_predictions = np.zeros((1,X.shape[1]))
-        return empty_predictions
         
+        prediction = np.where(self._hypothesis(X) < 0.5, 0, 1)
+        return prediction
