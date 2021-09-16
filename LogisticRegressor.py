@@ -30,13 +30,13 @@ class LogisticRegressor():
         This returns an scalar
         """
         m = len(y)
+        
+        cost = np.sum(-np.log(hyp)@y.T - np.log(1-hyp)@(1-y.T) )
         ##cost = 
         if self.regularize:
-            cost = np.sum(-np.log(hyp)@y.T - np.log(1-hyp)@(1-y.T) ) + self.reg_factor / (2*m) * np.sum(self.theta.T**2)
-            return cost
-        else:
-            cost = np.sum(-np.log(hyp)@y.T - np.log(1-hyp)@(1-y.T) )
-            return cost
+            cost += self.reg_factor / (2*m) * np.sum(self.theta.T**2)
+        
+        return cost
 
     def _cost_function_derivative(self, y_pred, y, X, m):
         """
@@ -55,9 +55,10 @@ class LogisticRegressor():
      
         derivatives = self.theta
         for i in range (X.shape[0]):
-            derivatives[i][0] = self.theta[i][0] - self.alpha * 1/m  * np.sum((y_pred-y)@X[i].T)
             if self.regularize:
-                derivatives[i][0] = self.theta[i][0] - self.alpha * (1/m  * np.sum((y_pred-y)@X[i].T) + self.reg_factor / m *self.theta[i][0])
+                derivatives[i][0] = self.theta[i][0] - self.alpha * 1/m  * (np.sum((y_pred-y)@X[i].T) + self.reg_factor / m *self.theta[i][0])
+            else:
+                derivatives[i][0] = self.theta[i][0] - self.alpha * 1/m  * np.sum((y_pred-y)@X[i].T)
 
         ##regularized
         return derivatives
