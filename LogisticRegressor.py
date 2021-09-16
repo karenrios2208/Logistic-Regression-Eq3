@@ -32,8 +32,8 @@ class LogisticRegressor():
         m = len(y)
         ##cost = 
         if self.regularize:
-        #     Here you would know there is something else to do
-            return 0
+            cost = np.sum(-np.log(hyp)@y.T - np.log(1-hyp)@(1-y.T) ) + self.reg_factor / (2*m) * np.sum(self.theta.T**2)
+            return cost
         else:
             cost = np.sum(-np.log(hyp)@y.T - np.log(1-hyp)@(1-y.T) )
             return cost
@@ -56,7 +56,9 @@ class LogisticRegressor():
         derivatives = self.theta
         for i in range (X.shape[0]):
             derivatives[i][0] = self.theta[i][0] - self.alpha * 1/m  * np.sum((y_pred-y)@X[i].T)
-        
+            if self.regularize:
+                derivatives[i][0] = self.theta[i][0] - self.alpha * (1/m  * np.sum((y_pred-y)@X[i].T) + self.reg_factor / m *self.theta[i][0])
+
         ##regularized
         return derivatives
 
