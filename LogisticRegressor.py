@@ -31,7 +31,7 @@ class LogisticRegressor():
         """
         m = len(y)
         
-        cost = np.sum(-np.log(hyp)@y.T - np.log(1-hyp)@(1-y.T) )
+        cost = 1/m * np.sum(-np.log(hyp)@y.T - np.log(1-hyp)@(1-y.T) )
         ##cost = 
         if self.regularize:
             cost += self.reg_factor / (2*m) * np.sum(self.theta.T**2)
